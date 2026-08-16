@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game Discoverer</title>
+  <link rel="icon" type="image/png" href="/static/images/Screenshot 2026-07-24 200622.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header__brand">
+        <span class="header__mark">&gt;_</span>
+        <span class="header__name">Game Discoverer</span>
+      </div>
+      <p class="header__tagline">Describe the game you're in the mood for. No filters, no genre menus — just say it.</p>
+    </header>
+
+    <nav class="view-tabs" id="view-tabs">
+      <button class="view-tab active" data-view="matchmaker">AI Matchmaker</button>
+      <button class="view-tab" data-view="search">Quick Search</button>
+    </nav>
+
+    <section id="matchmaker-view" class="view">
+      <section class="query-panel">
+        <form id="matchmaker-form" class="query-block">
+          <span class="query-block__prompt">Describe what you're after&gt;</span>
+          <textarea
+            id="matchmaker-input"
+            class="query-block__input"
+            rows="2"
+            placeholder="a relaxing game to play after college for about an hour"
+            aria-label="Describe what you want to play in your own words"
+          ></textarea>
+          <button type="submit" class="query-line__submit">find my match</button>
+        </form>
+
+        <div class="examples" id="matchmaker-examples">
+          <span class="examples__label">try:</span>
+          <button class="example-chip" data-query="a relaxing game to play after college for about an hour">relaxing, ~1 hour</button>
+          <button class="example-chip" data-query="my friends and I want a funny multiplayer game that is not too competitive">funny, multiplayer, chill</button>
+          <button class="example-chip" data-query="something peaceful where I can build and explore alone">peaceful, solo, building</button>
+          <button class="example-chip" data-query="a hard, fast-paced game for a quick 20 minute session">hard, fast, quick session</button>
+        </div>
+      </section>
+
+      <section class="results-section">
+        <div class="results-header">
+          <h2 id="matchmaker-title" class="results-title">Tell the matchmaker what you're in the mood for</h2>
+          <div id="matchmaker-intent-tags" class="intent-tags"></div>
+        </div>
+        <div id="matchmaker-grid" class="poster-grid" aria-live="polite"></div>
+        <p id="matchmaker-empty" class="empty-state hidden">
+          No close matches. Try describing the mood, mechanic, or genre differently.
+        </p>
+      </section>
+    </section>
+
+    <section id="search-view" class="view hidden">
+      <section class="query-panel">
+        <form id="search-form" class="query-line">
+          <span class="query-line__prompt">Your Thought&gt;</span>
+          <input
+            id="query-input"
+            class="query-line__input"
+            type="text"
+            autocomplete="off"
+            placeholder="a 2D puzzle game with increasing difficulty"
+            aria-label="Describe the game you want to play"
+          />
+          <button type="submit" class="query-line__submit">search</button>
+        </form>
+
+        <div class="examples" id="examples">
+          <span class="examples__label">try:</span>
+          <button class="example-chip" data-query="a multiplayer shooting game with futuristic weapons">multiplayer shooter, futuristic weapons</button>
+          <button class="example-chip" data-query="a relaxing game I can play after work">relaxing, after-work</button>
+          <button class="example-chip" data-query="a hard turn based strategy game">hard, turn-based strategy</button>
+          <button class="example-chip" data-query="co-op game to play with my partner">co-op, two player</button>
+        </div>
+      </section>
+
+      <section class="results-section">
+        <div class="results-header">
+          <h2 id="results-title" class="results-title">Nothing searched yet</h2>
+          <div id="intent-tags" class="intent-tags"></div>
+        </div>
+        <div id="results-grid" class="results-grid" aria-live="polite"></div>
+        <p id="empty-state" class="empty-state hidden">
+          No close matches. Try describing the mood, mechanic, or genre differently.
+        </p>
+      </section>
+    </section>
+
+    <aside id="profile-panel" class="profile-panel hidden">
+      <h3 class="profile-panel__title">Based on what you've liked</h3>
+      <div id="profile-tags" class="profile-tags"></div>
+    </aside>
+  </div>
+
+  <template id="card-template">
+    <article class="card">
+      <div class="card__top">
+        <h3 class="card__title"></h3>
+        <button class="card__like" aria-label="Like this game">&#9825;</button>
+      </div>
+      <div class="card__meta">
+        <span class="card__rating"></span>
+        <span class="card__year"></span>
+      </div>
+      <p class="card__description"></p>
+      <div class="card__tags"></div>
+      <div class="card__match">
+        <div class="card__match-bar"><div class="card__match-fill"></div></div>
+        <span class="card__match-label">match</span>
+      </div>
+      <p class="card__why hidden"></p>
+    </article>
+  </template>
+
+  <template id="poster-card-template">
+    <article class="poster-card">
+      <div class="poster-card__image-wrap">
+        <img class="poster-card__image" alt="" loading="lazy" />
+        <span class="poster-card__match-badge"></span>
+      </div>
+      <div class="poster-card__body">
+        <div class="poster-card__top">
+          <h3 class="poster-card__title"></h3>
+          <button class="poster-card__like" aria-label="Like this game">&#9825;</button>
+        </div>
+        <div class="poster-card__genres"></div>
+        <p class="poster-card__description"></p>
+        <div class="poster-card__why">
+          <p class="poster-card__why-label">Why this matches you</p>
+          <ul class="poster-card__why-list"></ul>
+        </div>
+        <button class="poster-card__details-toggle" type="button">View details</button>
+        <div class="poster-card__details hidden"></div>
+      </div>
+    </article>
+  </template>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
